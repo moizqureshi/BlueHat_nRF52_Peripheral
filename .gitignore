@@ -1,0 +1,6 @@
+ # Ignore this crap
+ 
+ 
+ ble_app_template/ble_app_template.eww
+ ble_app_template/hex/
+ *.DS_Store
