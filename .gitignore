@@ -3,3 +3,4 @@ ble_app_template/ble_app_template.eww
 ble_app_template/hex/
 *.DS_Store
 ble_app_template/pca10040/s132/armgcc/_build
+ble_app_template/pca10040/s132/armgcc/_build/*
