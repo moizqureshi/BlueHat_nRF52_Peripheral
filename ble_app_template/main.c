@@ -22,17 +22,17 @@
 #include "nrf_gpio.h"
 #include "ble_conn_state.h"
 #include "nrf_ble_gatt.h"
+
+#define NRF_LOG_MODULE_NAME "BlueHat-Peripheral"
 #include "nrf_log.h"
 #include "nrf_log_ctrl.h"
 
-#define NRF_LOG_MODULE_NAME "BlueHat-Peripheral"
-
 #define APP_FEATURE_NOT_SUPPORTED       BLE_GATT_STATUS_ATTERR_APP_BEGIN + 2    /**< Reply when unsupported features are requested. */
 
-#define DEVICE_NAME                     "BlueHat_Periph"                        /**< Name of device. Will be included in the advertising data. */
+#define DEVICE_NAME                     "BlueHatP"                              /**< Name of device. Will be included in the advertising data. */
 #define MANUFACTURER_NAME               "OG_NIGGAS"                             /**< Manufacturer. Will be passed to Device Information Service. */
 #define APP_ADV_INTERVAL                300                                     /**< The advertising interval (in units of 0.625 ms. This value corresponds to 187.5 ms). */
-#define APP_ADV_TIMEOUT_IN_SECONDS      180                                     /**< The advertising timeout in units of seconds. */
+#define APP_ADV_TIMEOUT_IN_SECONDS      0                                       /**< The advertising timeout in units of seconds. */
 
 #define MIN_CONN_INTERVAL               MSEC_TO_UNITS(100, UNIT_1_25_MS)        /**< Minimum acceptable connection interval (0.1 seconds). */
 #define MAX_CONN_INTERVAL               MSEC_TO_UNITS(200, UNIT_1_25_MS)        /**< Maximum acceptable connection interval (0.2 second). */
@@ -57,7 +57,7 @@
 // BlueHat Peripheral Specific Defines
 #define BLE_GAP_ADDR_TYPE_PUBLIC   0x00
 #define BLE_GAP_ADDR_CYCLE_MODE_NONE   0x00
-#define 	BLE_GAP_CONN_SEC_MODE_SET_NO_ACCESS(ptr)   do {(ptr)->sm = 0; (ptr)->lv = 0;} while(0)
+#define BLE_GAP_CONN_SEC_MODE_SET_NO_ACCESS(ptr)   do {(ptr)->sm = 0; (ptr)->lv = 0;} while(0)
 
 
 static uint16_t       m_conn_handle = BLE_CONN_HANDLE_INVALID;                  /**< Handle of the current connection. */
@@ -529,10 +529,6 @@ static void ble_evt_dispatch(ble_evt_t * p_ble_evt)
     on_ble_evt(p_ble_evt);
     ble_advertising_on_ble_evt(p_ble_evt);
     nrf_ble_gatt_on_ble_evt(&m_gatt, p_ble_evt);
-    /*YOUR_JOB add calls to _on_ble_evt functions from each service your application is using
-       ble_xxs_on_ble_evt(&m_xxs, p_ble_evt);
-       ble_yys_on_ble_evt(&m_yys, p_ble_evt);
-     */
 }
 
 
@@ -702,9 +698,16 @@ static void advertising_init(void)
     // Build advertising data struct to pass into @ref ble_advertising_init.
     memset(&advdata, 0, sizeof(advdata));
 
+    ble_advdata_manuf_data_t        manuf_data;
+    uint8_t data[10]                  = {0x09, 0x08, 0x07, 0x06, 0x05,
+                                         0x04, 0x03, 0x02, 0x01, 0x00};
+    manuf_data.data.p_data          = data;
+    manuf_data.data.size            = sizeof(data);
+
     advdata.name_type               = BLE_ADVDATA_FULL_NAME;
-    advdata.include_appearance      = true;
     advdata.flags                   = BLE_GAP_ADV_FLAGS_LE_ONLY_GENERAL_DISC_MODE;
+    advdata.p_manuf_specific_data   = &manuf_data;
+
     advdata.uuids_complete.uuid_cnt = sizeof(m_adv_uuids) / sizeof(m_adv_uuids[0]);
     advdata.uuids_complete.p_uuids  = m_adv_uuids;
 
