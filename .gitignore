@@ -1,7 +1,7 @@
 # Ignore these things
-ble_app_template/ble_app_template.eww
-ble_app_template/hex/
+bluehat_peripheral/ble_app_template.eww
+bluehat_peripheral/hex/
 *.DS_Store
-ble_app_template/pca10040/s132/armgcc/_build/
-ble_app_template/pca10040/s132/armgcc/_build/*
-ble_app_template/pca10040/s132/armgcc/Makefile
+bluehat_peripheral/pca10040/s132/armgcc/_build/
+bluehat_peripheral/pca10040/s132/armgcc/_build/*
+bluehat_peripheral/pca10040/s132/armgcc/Makefile
