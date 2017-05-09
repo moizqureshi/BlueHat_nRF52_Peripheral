@@ -11,11 +11,12 @@
 
 
 #define APP_CFG_NON_CONN_ADV_TIMEOUT    0                                 /**< Time for which the device must be advertising in non-connectable mode (in seconds). 0 disables timeout. */
-#define NON_CONNECTABLE_ADV_INTERVAL    MSEC_TO_UNITS(100, UNIT_0_625_MS) /**< The advertising interval for non-connectable advertisement (100 ms). This value can vary between 100ms to 10.24s). */
+#define NON_CONNECTABLE_ADV_INTERVAL    MSEC_TO_UNITS(500, UNIT_0_625_MS) /**< The advertising interval for non-connectable advertisement (100 ms). This value can vary between 100ms to 10.24s). */
 
-#define APP_BEACON_INFO_LENGTH          0x17                              /**< Total length of information advertised by the Beacon. */
-#define APP_ADV_DATA_LENGTH             0x15                              /**< Length of manufacturer specific data in the advertisement. */
-#define APP_DEVICE_TYPE                 0x02                              /**< 0x02 refers to Beacon. */
+#define BEACON_NAME                     "BlueHat_P"
+#define APP_BEACON_INFO_LENGTH          0x15                              /**< Total length of information advertised by the Beacon. */
+// #define APP_ADV_DATA_LENGTH             0x15                              /**< Length of manufacturer specific data in the advertisement. */
+// #define APP_DEVICE_TYPE                 0x02                              /**< 0x02 refers to Beacon. */
 #define APP_MEASURED_RSSI               0xC3                              /**< The Beacon's measured RSSI at 1 meter distance in dBm. */
 #define APP_COMPANY_IDENTIFIER          0xFFFF                            /**< Company identifier for Nordic Semiconductor ASA. as per www.bluetooth.org. */
 #define APP_MAJOR_VALUE                 0x01, 0x23                        /**< Major value used to identify Beacons. */
@@ -36,10 +37,10 @@ static ble_gap_adv_params_t m_adv_params;                                 /**< P
 
 static uint8_t m_beacon_info[APP_BEACON_INFO_LENGTH] =                    /**< Information advertised by the Beacon. */
 {
-    APP_DEVICE_TYPE,     // Manufacturer specific information. Specifies the device type in this
-                         // implementation.
-    APP_ADV_DATA_LENGTH, // Manufacturer specific information. Specifies the length of the
-                         // manufacturer specific data in this implementation.
+    // APP_DEVICE_TYPE,     // Manufacturer specific information. Specifies the device type in this
+    //                      // implementation.
+    // APP_ADV_DATA_LENGTH, // Manufacturer specific information. Specifies the length of the
+    //                      // manufacturer specific data in this implementation.
     APP_BEACON_UUID,     // 128 bit UUID value.
     APP_MAJOR_VALUE,     // Major arbitrary value that can be used to distinguish between Beacons.
     APP_MINOR_VALUE,     // Minor arbitrary value that can be used to distinguish between Beacons.
@@ -74,7 +75,7 @@ static void advertising_init(void)
     ble_advdata_t advdata;
     uint8_t       flags = BLE_GAP_ADV_FLAG_BR_EDR_NOT_SUPPORTED;
 
-    // BLE Beacon Manufacturing Data - set in stone, cannot change
+    // BLE Beacon Manufacturing Data
     ble_advdata_manuf_data_t manuf_specific_data;
 
     manuf_specific_data.company_identifier = APP_COMPANY_IDENTIFIER;
@@ -88,19 +89,6 @@ static void advertising_init(void)
     advdata.flags                 = flags;
     advdata.p_manuf_specific_data = &manuf_specific_data;
 
-    // Build and set the scan response data
-    ble_advdata_t advdata_response;
-    ble_advdata_manuf_data_t manuf_data_response;
-
-    manuf_data_response.company_identifier  = 0x0726;
-    uint8_t scan_response_data[]            = "place_more_data_here";
-    manuf_data_response.data.p_data         = scan_response_data;
-    manuf_data_response.data.size           = sizeof(scan_response_data);
-
-    memset(&advdata_response, 0, sizeof(advdata_response));
-    advdata_response.name_type              = BLE_ADVDATA_NO_NAME;
-    advdata_response.p_manuf_specific_data   = &manuf_data_response;
-
     // Initialize advertising parameters (used when starting advertising).
     memset(&m_adv_params, 0, sizeof(m_adv_params));
 
@@ -110,7 +98,8 @@ static void advertising_init(void)
     m_adv_params.interval    = NON_CONNECTABLE_ADV_INTERVAL;
     m_adv_params.timeout     = APP_CFG_NON_CONN_ADV_TIMEOUT;
 
-    err_code = ble_advdata_set(&advdata, &advdata_response);
+    err_code = ble_advdata_set(&advdata, NULL);
+    // err_code = ble_advdata_set(&advdata, &advdata_response);
     APP_ERROR_CHECK(err_code);
 }
 
