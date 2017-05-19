@@ -1,5 +1,6 @@
 #include <stdbool.h>
 #include <stdint.h>
+#include "ble.h"
 #include "ble_advdata.h"
 #include "ble_advertising.h"
 #include "nordic_common.h"
@@ -8,25 +9,31 @@
 #include "app_timer.h"
 #include "nrf_log.h"
 #include "nrf_log_ctrl.h"
+#include "ble_gap.h"
 
 
 #define APP_CFG_NON_CONN_ADV_TIMEOUT    0                                 /**< Time for which the device must be advertising in non-connectable mode (in seconds). 0 disables timeout. */
 #define NON_CONNECTABLE_ADV_INTERVAL    MSEC_TO_UNITS(500, UNIT_0_625_MS) /**< The advertising interval for non-connectable advertisement (100 ms). This value can vary between 100ms to 10.24s). */
 
-#define BEACON_NAME                     "BlueHat_P"
+#define BEACON_NAME                     "BlueHat"
 #define APP_BEACON_INFO_LENGTH          0x15                              /**< Total length of information advertised by the Beacon. */
 // #define APP_ADV_DATA_LENGTH             0x15                              /**< Length of manufacturer specific data in the advertisement. */
 // #define APP_DEVICE_TYPE                 0x02                              /**< 0x02 refers to Beacon. */
 #define APP_MEASURED_RSSI               0xC3                              /**< The Beacon's measured RSSI at 1 meter distance in dBm. */
 #define APP_COMPANY_IDENTIFIER          0xFFFF                            /**< Company identifier for Nordic Semiconductor ASA. as per www.bluetooth.org. */
+#define APP_BEACON_UUID                 0x01, 0x23, 0x45, 0x67, \
+                                        0x89, 0xAB, 0xCD, 0xEF, \
+                                        0xFF, 0xFF, 0xFF, 0xFF, \
+                                        0xAA, 0xAA, 0xAA, 0xAA            /**< Proprietary UUID for Beacon. */
+                                      //0xAA, 0xAA, 0xAA, 0xAA
+                                      //0xBB, 0xBB, 0xBB, 0xBB
+
 #define APP_MAJOR_VALUE                 0x01, 0x23                        /**< Major value used to identify Beacons. */
 #define APP_MINOR_VALUE                 0x45, 0x67                        /**< Minor value used to identify Beacons. */
-#define APP_BEACON_UUID                 0x01, 0x23, 0x34, 0x56, \
-                                        0x78, 0x89, 0xAB, 0xCD, \
-                                        0xEF, 0xFF, 0xFF, 0xFF, \
-                                        0xFF, 0xFF, 0xFF, 0xFF            /**< Proprietary UUID for Beacon. */
-
+#define TX_POWER_LEVEL                  3
 #define DEAD_BEEF                       0xDEADBEEF                        /**< Value used as error code on stack dump, can be used to identify stack location on stack unwind. */
+
+
 
 // #if defined(USE_UICR_FOR_MAJ_MIN_VALUES)
 // #define MAJ_VAL_OFFSET_IN_BEACON_INFO   18                                /**< Position of the MSB of the Major Value in m_beacon_info array. */
@@ -117,6 +124,13 @@ static void advertising_start(void)
     APP_ERROR_CHECK(err_code);
 }
 
+static void gap_params_init(void)
+{
+    uint32_t                err_code;
+
+    err_code = sd_ble_gap_tx_power_set(TX_POWER_LEVEL);
+    APP_ERROR_CHECK(err_code);
+}
 
 /**@brief Function for initializing the BLE stack.
  *
@@ -205,6 +219,7 @@ int main(void)
     timers_init();
     leds_init();
     ble_stack_init();
+    gap_params_init();
     advertising_init();
     advertising_start();
 
